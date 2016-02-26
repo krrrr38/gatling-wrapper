@@ -6,8 +6,16 @@ import io.gatling.core.result.message.{KO, OK}
 import io.gatling.core.result.writer.{DataWriter, RequestMessage}
 import io.gatling.core.session.Session
 
-trait CustomSimulation extends Chainable {
-  val executeAction: (Session) => Unit
+trait CustomSimulation[T] extends Chainable {
+  /**
+    * create action arg
+    */
+  val buildAction: (Session) => T
+
+  /**
+    * execute action with arg
+    */
+  val executeAction: (T) => Unit
 
   def execute(session: Session) {
     var status: Status = OK
@@ -16,8 +24,9 @@ trait CustomSimulation extends Chainable {
     var errorMessage: Option[String] = None
 
     try {
+      val actionArg = buildAction(session)
       start = System.currentTimeMillis
-      executeAction(session)
+      executeAction(actionArg)
       end = System.currentTimeMillis;
     } catch {
       case e: Exception =>

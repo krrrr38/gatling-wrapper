@@ -17,7 +17,9 @@ class ScalaSimulationExecutor extends SimulationExecutor {
   )
 }
 
-class ScalaAction(val next: ActorRef) extends CustomSimulation {
+class ScalaAction(val next: ActorRef) extends CustomSimulation[Session] {
+  override val buildAction = identity()
+
   override val executeAction = (session: Session) => {
     println("hello")
   }
