@@ -44,7 +44,7 @@ trait SimulationExecutor extends Simulation {
   setUp(
     scn.inject(iss)
   ).assertions(
-      global.responseTime.max.lessThan(responseTime95),
+      global.responseTime.percentile4.lessThan(responseTime95),
       global.successfulRequests.percent.greaterThan(95)
     )
 }
