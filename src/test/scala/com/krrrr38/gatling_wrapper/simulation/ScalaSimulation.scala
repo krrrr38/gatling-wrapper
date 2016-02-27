@@ -1,7 +1,7 @@
 package com.krrrr38.gatling_wrapper.simulation
 
 import akka.actor.ActorRef
-import com.krrrr38.gatling_wrapper.core.{CustomSimulation, SimulationExecutor}
+import com.krrrr38.gatling_wrapper.core.{ CustomSimulation, SimulationExecutor }
 import io.gatling.core.Predef._
 import io.gatling.core.controller.inject.InjectionStep
 import io.gatling.core.session.Session
@@ -18,7 +18,7 @@ class ScalaSimulationExecutor extends SimulationExecutor {
 }
 
 class ScalaAction(val next: ActorRef) extends CustomSimulation[Session] {
-  override val buildAction = identity()
+  override val buildAction = identity[Session] _
 
   override val executeAction = (session: Session) => {
     println("hello")

@@ -2,19 +2,19 @@ package com.krrrr38.gatling_wrapper.core
 
 import io.gatling.core.Predef._
 import io.gatling.core.action.Chainable
-import io.gatling.core.result.message.{KO, OK}
-import io.gatling.core.result.writer.{DataWriter, RequestMessage}
+import io.gatling.core.result.message.{ KO, OK }
+import io.gatling.core.result.writer.{ DataWriter, RequestMessage }
 import io.gatling.core.session.Session
 
 trait CustomSimulation[T] extends Chainable {
   /**
-    * create action arg
-    */
+   * create action arg
+   */
   val buildAction: (Session) => T
 
   /**
-    * execute action with arg
-    */
+   * execute action with arg
+   */
   val executeAction: (T) => Unit
 
   def execute(session: Session) {
@@ -50,7 +50,8 @@ trait CustomSimulation[T] extends Chainable {
         responseEndDate,
         status,
         message,
-        extraInfo))
+        extraInfo
+      ))
       next ! session
     }
   }

@@ -1,12 +1,12 @@
 package com.krrrr38.gatling_wrapper
 
 import akka.actor.ActorRef
-import com.krrrr38.gatling_wrapper.core.{CustomSimulation, SimulationExecutor}
+import com.krrrr38.gatling_wrapper.core.{ CustomSimulation, SimulationExecutor }
 import io.gatling.core.Predef
 import io.gatling.core.Predef._
 import io.gatling.core.controller.inject.InjectionStep
 import io.gatling.core.session.Session
-import org.apache.http.client.fluent.{Executor, Request}
+import org.apache.http.client.fluent.{ Executor, Request }
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
 
@@ -18,8 +18,8 @@ class HttpSimulationExecutor extends SimulationExecutor {
   lazy val action = new HttpAction(_)
 
   // request for 5 * 5 secs
-  // 10 req/sec in first second
-  // 20 req/sec in next second
+  // 10 req/sec in first 5 secs
+  // 20 req/sec in next 5 secs
   // ...
   lazy val iss: Iterable[InjectionStep] =
     List(10, 20, 30, 40, 50).map(reqPerSec => {

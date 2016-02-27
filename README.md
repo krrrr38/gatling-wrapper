@@ -22,8 +22,14 @@ class CustomSimulationExecutor extends SimulationExecutor {
   )
 }
 
-class CusotomAction(val next: ActorRef) extends CustomSimulation {
-  override val executeAction = (session: Session) => {
+class CustomAction(val next: ActorRef) extends CustomSimulation[String] {
+  override val buildAction: Session => String = {
+    // build param for action
+    // before every time action executed, this method is called.
+    // and this method is not included execution time.
+  }
+
+  override val executeAction = (param: String) => {
     // implement simulated action
   }
 }
