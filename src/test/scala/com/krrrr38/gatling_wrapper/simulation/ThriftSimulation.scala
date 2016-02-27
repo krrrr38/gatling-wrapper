@@ -6,8 +6,10 @@ import com.krrrr38.gatling_wrapper.core.{ CustomSimulation, SimulationExecutor }
 import io.gatling.core.Predef._
 import io.gatling.core.controller.inject.InjectionStep
 import io.gatling.core.session.Session
+import org.apache.http.impl.client.HttpClients
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
 import org.apache.thrift.protocol.TBinaryProtocol
-import org.apache.thrift.transport.TSocket
+import org.apache.thrift.transport.THttpClient
 
 import scala.concurrent.duration._
 import scala.util.Random
@@ -26,15 +28,23 @@ class ThriftSimulationExecutor extends SimulationExecutor {
     })
 }
 
-class ThriftAction(val next: ActorRef) extends CustomSimulation[String] {
-  var transport: TSocket = null
-  var client: HelloService.Client = null
+object ThriftAction {
+  private val CLIENT = {
+    val cm = new PoolingHttpClientConnectionManager
+    cm.setMaxTotal(500)
+    cm.setDefaultMaxPerRoute(500)
+    val httpClient = HttpClients.custom
+      .setConnectionManager(cm)
+      .build
+    val tHttpClient = new THttpClient("localhost:8080", httpClient)
+    tHttpClient.open()
+    sys.addShutdownHook(tHttpClient.close())
+    new HelloService.Client(new TBinaryProtocol(tHttpClient))
+  }
+}
 
+class ThriftAction(val next: ActorRef) extends CustomSimulation[String] {
   override val buildAction = (session: Session) => {
-    // initialize
-    transport = new TSocket("localhost", 8080)
-    client = new HelloService.Client(new TBinaryProtocol(transport))
-    transport.open()
     // param
     if (Random.nextInt() % 2 == 0)
       "foo"
@@ -43,11 +53,7 @@ class ThriftAction(val next: ActorRef) extends CustomSimulation[String] {
   }
 
   override val executeAction = (param: String) => {
-    try {
-      client.hello(param)
-      ()
-    } finally {
-      transport.close()
-    }
+    ThriftAction.CLIENT.hello(param)
+    ()
   }
 }
