@@ -1,8 +1,7 @@
-package com.krrrr38.gatling_wrapper
+package com.krrrr38.gatling_wrapper.simulation
 
 import akka.actor.ActorRef
 import com.krrrr38.gatling_wrapper.core.{ CustomSimulation, SimulationExecutor }
-import io.gatling.core.Predef
 import io.gatling.core.Predef._
 import io.gatling.core.controller.inject.InjectionStep
 import io.gatling.core.session.Session
@@ -27,8 +26,8 @@ class HttpSimulationExecutor extends SimulationExecutor {
     })
 }
 
-class HttpAction(val next: ActorRef) extends CustomSimulation[String] {
-  val request = {
+object HttpAction {
+  private val REQUEST_EXECUTOR = {
     val cm = new PoolingHttpClientConnectionManager
     cm.setMaxTotal(500)
     cm.setDefaultMaxPerRoute(500)
@@ -37,7 +36,9 @@ class HttpAction(val next: ActorRef) extends CustomSimulation[String] {
       .build
     Executor.newInstance(client)
   }
+}
 
+class HttpAction(val next: ActorRef) extends CustomSimulation[String] {
   override val buildAction = (session: Session) =>
     if (Random.nextInt() % 2 == 0)
       "foo"
@@ -45,7 +46,7 @@ class HttpAction(val next: ActorRef) extends CustomSimulation[String] {
       "bar"
 
   override val executeAction = (param: String) => {
-    request.execute(Request.Get(s"http://localhost:8080/ping?param=$param"))
+    HttpAction.REQUEST_EXECUTOR.execute(Request.Get(s"http://localhost:8080/ping?param=$param"))
       .discardContent()
   }
 }
